@@ -6,21 +6,22 @@
   <title>SIREK v2.0 Universe Pro</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --surface: #111827;
-      --surface-2: #1e293b;
-      --surface-soft: #334155;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #60a5fa;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --card: #15233c;
-      --border: rgba(148,163,184,0.15);
-      --shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
-      --radius: 22px;
+      --bg: #070b1e;
+      --surface: rgba(12, 25, 64, 0.95);
+      --surface-2: rgba(18, 30, 77, 0.94);
+      --surface-soft: rgba(35, 48, 108, 0.88);
+      --text: #eef4ff;
+      --muted: #b3c0ec;
+      --accent: #7c3aed;
+      --accent-2: #22d3ee;
+      --accent-3: #fb7185;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #fb7185;
+      --card: rgba(10, 18, 49, 0.9);
+      --border: rgba(147, 197, 253, 0.18);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius: 26px;
     }
 
     * { box-sizing: border-box; }
@@ -29,26 +30,34 @@
       min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 25%),
-                 radial-gradient(circle at bottom left, rgba(229, 62, 62, 0.12), transparent 20%),
-                 linear-gradient(180deg, #020617 0%, #08101d 100%);
+      background: radial-gradient(circle at top left, rgba(124, 58, 237, 0.2), transparent 22%),
+                 radial-gradient(circle at right center, rgba(34, 211, 238, 0.14), transparent 20%),
+                 radial-gradient(circle at bottom left, rgba(251, 113, 133, 0.14), transparent 18%),
+                 linear-gradient(180deg, #060a1c 0%, #08101f 100%);
     }
 
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
     .sidebar {
       padding: 32px 24px;
-      background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
-      border-right: 1px solid rgba(148,163,184,0.1);
-      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(32, 45, 100, 0.96), rgba(16, 20, 60, 0.98));
+      border-right: 1px solid rgba(147, 197, 253, 0.12);
+      backdrop-filter: blur(14px);
     }
 
     .brand {
       display: flex; align-items: center; gap: 12px;
       margin-bottom: 32px;
     }
-    .brand-dot { width: 16px; height: 16px; background: linear-gradient(135deg, #38bdf8, #818cf8); border-radius: 100%; }
-    .brand-text { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; }
-    .brand-sub { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+    .brand-dot { width: 18px; height: 18px; background: linear-gradient(135deg, #22d3ee, #8b5cf6); border-radius: 100%; box-shadow: 0 0 24px rgba(34, 211, 238, 0.4); }
+    .brand-text {
+      font-size: 1.18rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      background: linear-gradient(135deg, #7c3aed, #38bdf8, #fb7185);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .brand-sub { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
 
     .nav-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
     .nav-item { display: block; border-radius: 18px; overflow: hidden; }
@@ -60,10 +69,13 @@
     }
     .nav-item button.active,
     .nav-item button:hover {
-      color: var(--text); background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.15);
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(56, 189, 248, 0.16));
+      border-color: rgba(147, 197, 253, 0.25);
+      box-shadow: 0 18px 40px rgba(56, 189, 248, 0.16);
     }
 
-    .nav-icon { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+    .nav-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
     .nav-caption { display: block; }
     .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
     .section-head h1 { margin: 0; font-size: clamp(1.5rem, 2vw, 2.2rem); }
@@ -74,21 +86,21 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
-    .card { border-radius: 28px; padding: 26px; position: relative; overflow: hidden; border: 1px solid rgba(148,163,184,0.12); background: rgba(15,23,42,0.94); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02); }
+    .card { border-radius: 28px; padding: 26px; position: relative; overflow: hidden; border: 1px solid rgba(147,197,253,0.14); background: var(--card); box-shadow: var(--shadow); }
     .card span { display: block; color: var(--muted); margin-bottom: 10px; }
     .card strong { font-size: 2rem; display: block; line-height: 1.05; }
-    .card-icon { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 16px; }
-    .card.accent { background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(15,23,42,0.88)); }
-    .card.success { background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(15,23,42,0.88)); }
-    .card.warning { background: linear-gradient(135deg, rgba(245,158,11,0.16), rgba(15,23,42,0.88)); }
-    .card.danger { background: linear-gradient(135deg, rgba(239,68,68,0.16), rgba(15,23,42,0.88)); }
-    .card.blue { background: linear-gradient(135deg, rgba(96,165,250,0.16), rgba(15,23,42,0.88)); }
+    .card-icon { width: 54px; height: 54px; border-radius: 18px; display: grid; place-items: center; margin-bottom: 16px; backdrop-filter: blur(10px); }
+    .card.accent { background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(12, 18, 56, 0.96)); }
+    .card.success { background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(12, 18, 56, 0.96)); }
+    .card.warning { background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(12, 18, 56, 0.96)); }
+    .card.danger { background: linear-gradient(135deg, rgba(251, 113, 133, 0.22), rgba(12, 18, 56, 0.96)); }
+    .card.blue { background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(12, 18, 56, 0.96)); }
 
-    .button { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 14px; border: 1px solid transparent; font-weight: 600; background: rgba(56,189,248,0.16); color: var(--text); cursor: pointer; transition: all 160ms ease; }
-    .button.primary { background: linear-gradient(135deg, #38bdf8, #60a5fa); color: #0f172a; }
-    .button.secondary { background: rgba(148,163,184,0.12); }
-    .button.danger { background: rgba(239,68,68,0.18); color: #fee2e2; }
-    .button:hover { transform: translateY(-1px); }
+    .button { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 16px; border: 1px solid transparent; font-weight: 700; background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer; transition: all 180ms ease; }
+    .button.primary { background: linear-gradient(135deg, #22d3ee, #7c3aed); color: #f8fafc; border-color: rgba(34, 211, 238, 0.3); }
+    .button.secondary { background: linear-gradient(135deg, rgba(147,197,253,0.18), rgba(168,85,247,0.12)); }
+    .button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.18), rgba(245,101,101,0.15)); color: #fff; }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 20px 40px rgba(56, 189, 248, 0.16); }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 780px; }
@@ -172,39 +184,39 @@
         <div class="section-head">
           <div>
             <h1>Dashboard Rekrutmen</h1>
-            <p>Rekap otomatis berdasarkan data pelamar dari Google Sheet. Semua status ditampilkan dalam card berwarna untuk memudahkan monitoring.</p>
+            <p>Rekap otomatis berdasarkan data isian formulir pelamar. Semua metrik diambil langsung dari data yang dikirim oleh pelamar.</p>
           </div>
           <button class="button primary" onclick="refreshDashboard()">Refresh Data</button>
         </div>
         <div class="grid-3" id="dashboardCards">
           <div class="card accent">
             <div class="card-icon" style="background: rgba(56,189,248,0.16);">📥</div>
-            <span>Lamaran Masuk</span>
+            <span>Total Pelamar</span>
             <strong id="cardTotal">0</strong>
           </div>
           <div class="card success">
             <div class="card-icon" style="background: rgba(34,197,94,0.16);">✅</div>
-            <span>Lolos Seleksi Berkas</span>
+            <span>Dokumen Lengkap</span>
             <strong id="cardBerkas">0</strong>
           </div>
           <div class="card warning">
-            <div class="card-icon" style="background: rgba(245,158,11,0.16);">🧠</div>
-            <span>Lulus Test Kompetensi</span>
+            <div class="card-icon" style="background: rgba(245,158,11,0.16);">👨‍💼</div>
+            <span>Pelamar Laki-laki</span>
             <strong id="cardKompetensi">0</strong>
           </div>
           <div class="card blue">
-            <div class="card-icon" style="background: rgba(96,165,250,0.16);">🗣️</div>
-            <span>Lulus Wawancara</span>
+            <div class="card-icon" style="background: rgba(96,165,250,0.16);">👩‍💼</div>
+            <span>Pelamar Perempuan</span>
             <strong id="cardWawancara">0</strong>
           </div>
           <div class="card danger">
-            <div class="card-icon" style="background: rgba(239,68,68,0.16);">🩺</div>
-            <span>Lulus Test Kesehatan</span>
+            <div class="card-icon" style="background: rgba(239,68,68,0.16);">🎓</div>
+            <span>IPK ≥ 3.00</span>
             <strong id="cardKesehatan">0</strong>
           </div>
           <div class="card" style="background: linear-gradient(135deg, rgba(79,70,229,0.16), rgba(15,23,42,0.94));">
-            <div class="card-icon" style="background: rgba(148,163,184,0.14);">🏁</div>
-            <span>Lulus Akhir</span>
+            <div class="card-icon" style="background: rgba(148,163,184,0.14);">📁</div>
+            <span>Formasi Terdaftar</span>
             <strong id="cardAkhir">0</strong>
           </div>
         </div>
@@ -361,7 +373,7 @@
   </div>
 
   <script>
-    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbzr_KOr7w_GQg7sCubgAv0J5ayrdWtAK2bdlyw0zUbklEPaMmByHzGib0PzQ4B47Xfi/exec';
+    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbzRZCir-Sxy5v6PD6FuRbN0lJf2d66LyIAmNmd6PnQv7gV0q3FYTaKkhGiqVKYzC6Di/exec';
     let API_ROOT = DEFAULT_API_ROOT;
     if (location.host.includes('script.google.com')) {
       API_ROOT = `${location.origin}${location.pathname}`;
@@ -429,13 +441,25 @@
         const result = await apiGet('getPelamar');
         pelamarData = Array.isArray(result.data) ? result.data : [];
         const total = pelamarData.length;
-        const count = key => pelamarData.filter(item => (item[key] || '').toLowerCase().includes('lolos')).length;
+        const countCompleteDocs = pelamarData.filter(item => {
+          const required = [item.Foto, item.SuratPernyataan, item.SuratLamaran, item.CV];
+          return required.every(value => value && value.toString().trim());
+        }).length;
+        const countMale = pelamarData.filter(item => /laki/i.test(item.JenisKelamin || '')).length;
+        const countFemale = pelamarData.filter(item => /perempuan|wanita/i.test(item.JenisKelamin || '')).length;
+        const countIpk = pelamarData.filter(item => {
+          const ipkValue = (item.IPK || '').toString().trim().replace(',', '.');
+          const ipk = parseFloat(ipkValue);
+          return !isNaN(ipk) && ipk >= 3;
+        }).length;
+        const countFormasi = new Set(pelamarData.map(item => (item.Formasi || '').toString().trim()).filter(Boolean)).size;
+
         document.getElementById('cardTotal').textContent = total;
-        document.getElementById('cardBerkas').textContent = count('Berkas');
-        document.getElementById('cardKompetensi').textContent = count('Kompetensi');
-        document.getElementById('cardWawancara').textContent = count('Wawancara');
-        document.getElementById('cardKesehatan').textContent = count('Kesehatan');
-        document.getElementById('cardAkhir').textContent = count('Hasil Akhir');
+        document.getElementById('cardBerkas').textContent = countCompleteDocs;
+        document.getElementById('cardKompetensi').textContent = countMale;
+        document.getElementById('cardWawancara').textContent = countFemale;
+        document.getElementById('cardKesehatan').textContent = countIpk;
+        document.getElementById('cardAkhir').textContent = countFormasi;
       });
     }
 
