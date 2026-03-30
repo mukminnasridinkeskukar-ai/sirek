@@ -373,7 +373,7 @@
   </div>
 
   <script>
-    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbxqKQ79Ik-P1DnVZ8Cczd8RK2DAk6yb46hcXNEszalHMWiu2070DsxeYoOUtnV2S7FB/exec';
+    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbwyjrXUZjsQ57jwr_YzsaTS9Xqx407Liu1RgQWzH34VoyGjq_nk2p5E1aGUBngV5nrT/exec';
     let API_ROOT = DEFAULT_API_ROOT;
     if (location.host.includes('script.google.com')) {
       const currentPath = location.pathname.toLowerCase();
@@ -418,25 +418,35 @@
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) url.searchParams.set(key, value);
       });
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`API GET ${path} gagal: ${response.status} ${response.statusText} - ${text.slice(0, 200)}`);
+      try {
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`API GET ${path} gagal: ${response.status} ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (err) {
+        console.error('API GET Error:', err);
+        throw err;
       }
-      return await response.json();
     }
 
     async function apiPost(path, payload) {
       const url = new URL(API_ROOT);
       url.searchParams.set('action', path);
-      const response = await fetch(url.toString(), {
-        method: 'POST', body: JSON.stringify(payload)
-      });
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`API POST ${path} gagal: ${response.status} ${response.statusText} - ${text.slice(0, 200)}`);
+      try {
+        const response = await fetch(url.toString(), {
+          method: 'POST', body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`API POST ${path} gagal: ${response.status} ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (err) {
+        console.error('API POST Error:', err);
+        throw err;
       }
-      return await response.json();
     }
 
     async function loadDashboard() {
@@ -486,8 +496,30 @@
         return !search || text.includes(search);
       }).forEach(item => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${item.Kode}</td><td>${item.Jabatan}</td><td>${item.Unit}</td><td>${item.Kebutuhan}</td><td><span class="status-chip ${item.Status === 'Aktif' ? 'chip-active' : 'chip-off'}">${item.Status}</span></td><td><button class="button secondary" onclick='openFormasiModal(${JSON.stringify(item)})'>Edit</button> <button class="button danger" onclick="deleteFormasi('${item.Kode}')">Hapus</button></td>`;
+        const editBtn = document.createElement('button');
+        editBtn.className = 'button secondary';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => openFormasiModal(item);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'button danger';
+        deleteBtn.textContent = 'Hapus';
+        deleteBtn.onclick = () => deleteFormasi(item.Kode);
+        const td = document.createElement('td');
+        td.appendChild(editBtn);
+        td.appendChild(document.createTextNode(' '));
+        td.appendChild(deleteBtn);
+        row.innerHTML = `<td>${escapeHtml(item.Kode)}</td><td>${escapeHtml(item.Jabatan)}</td><td>${escapeHtml(item.Unit)}</td><td>${escapeHtml(item.Kebutuhan)}</td><td><span class="status-chip ${item.Status === 'Aktif' ? 'chip-active' : 'chip-off'}">${escapeHtml(item.Status)}</span></td>`;
+        row.appendChild(td);
         body.appendChild(row);
+      });
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      const str = text.toString();
+      return str.replace(/[&<>"']/g, (m) => {
+        const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return escape[m] || m;
       });
     }
 
@@ -556,30 +588,72 @@
 
     async function submitLamaran(event) {
       event.preventDefault();
+      
+      // Client-side validation
+      const email = document.getElementById('lamaEmail').value.trim();
+      const nik = document.getElementById('lamaNIK').value.trim();
+      const nama = document.getElementById('lamaNama').value.trim();
+      const tempat = document.getElementById('lamaTempat').value.trim();
+      const tanggal = document.getElementById('lamaTanggalLahir').value;
+      const jk = document.getElementById('lamaJK').value;
+      const hp = document.getElementById('lamaHP').value.trim();
+      const alamatKTP = document.getElementById('lamaAlamatKTP').value.trim();
+      const domisili = document.getElementById('lamaAlamatDomisili').value.trim();
+      const pendidikan = document.getElementById('lamaPendidikan').value.trim();
+      const ipk = document.getElementById('lamaIPK').value.trim();
+      const formasi = document.getElementById('lamaFormasi').value;
+      
+      if (!email || !nik || !nama || !tempat || !tanggal || !jk || !hp || !alamatKTP || !domisili || !pendidikan || !ipk || !formasi) {
+        alert('Mohon lengkapi semua field yang wajib diisi.');
+        return;
+      }
+      
+      // Validate NIK format (numbers only, 10-20 digits)
+      if (!/^\d{10,20}$/.test(nik)) {
+        alert('NIK harus berupa angka dengan 10-20 digit.');
+        return;
+      }
+      
+      // Validate IPK format
+      const ipkNum = parseFloat(ipk.replace(',', '.'));
+      if (isNaN(ipkNum) || ipkNum < 0 || ipkNum > 4) {
+        alert('IPK harus berupa angka antara 0 dan 4.');
+        return;
+      }
+      
       const data = {
-        Email: document.getElementById('lamaEmail').value.trim(),
-        NIK: document.getElementById('lamaNIK').value.trim(),
-        Nama: document.getElementById('lamaNama').value.trim(),
-        TTL: `${document.getElementById('lamaTempat').value.trim()}, ${document.getElementById('lamaTanggalLahir').value}`,
-        JenisKelamin: document.getElementById('lamaJK').value,
-        HP: document.getElementById('lamaHP').value.trim(),
-        AlamatKTP: document.getElementById('lamaAlamatKTP').value.trim(),
-        Domisili: document.getElementById('lamaAlamatDomisili').value.trim(),
-        Pendidikan: document.getElementById('lamaPendidikan').value.trim(),
-        IPK: document.getElementById('lamaIPK').value.trim(),
-        Formasi: document.getElementById('lamaFormasi').value,
+        Email: email,
+        NIK: nik,
+        Nama: nama,
+        TTL: `${tempat}, ${tanggal}`,
+        JenisKelamin: jk,
+        HP: hp,
+        AlamatKTP: alamatKTP,
+        Domisili: domisili,
+        Pendidikan: pendidikan,
+        IPK: ipk,
+        Formasi: formasi,
         Foto: normalizeDriveLink(document.getElementById('lamaFoto').value.trim()),
         SuratPernyataan: normalizeDriveLink(document.getElementById('lamaSuratPernyataan').value.trim()),
         SuratLamaran: normalizeDriveLink(document.getElementById('lamaSuratLamaran').value.trim()),
         CV: normalizeDriveLink(document.getElementById('lamaCV').value.trim()),
         Gabungan: normalizeDriveLink(document.getElementById('lamaGabungan').value.trim())
       };
-      await withLoading(async () => {
-        await apiPost('submitLamaran', data);
-        alert('Lamaran berhasil dikirim. Terima kasih!');
-        document.getElementById('lamaranForm').reset();
-        await loadDashboard();
-      });
+      
+      try {
+        await withLoading(async () => {
+          const result = await apiPost('submitLamaran', data);
+          if (result.status === 'error') {
+            alert(result.message || 'Terjadi kesalahan saat menyimpan lamaran.');
+            return;
+          }
+          alert('Lamaran berhasil dikirim. Terima kasih!');
+          document.getElementById('lamaranForm').reset();
+          await loadDashboard();
+        });
+      } catch (err) {
+        alert('Gagal mengirim lamaran: ' + err.message);
+      }
     }
 
     function previewLamaranPhoto() {
@@ -602,8 +676,8 @@
         document.getElementById('cekResult').classList.remove('hidden');
         const fotoLink = normalizeDriveLink(item.Foto);
         const fotoAnchor = document.getElementById('cekFotoLink');
-        fotoAnchor.href = fotoLink;
-        fotoAnchor.onclick = (e) => { e.preventDefault(); openLightbox(fotoLink); };
+        fotoAnchor.href = fotoLink || '#';
+        fotoAnchor.onclick = (e) => { if (fotoLink) { e.preventDefault(); openLightbox(fotoLink); } };
         const docs = [
           { label: 'Surat Pernyataan', url: normalizeDriveLink(item.SuratPernyataan) },
           { label: 'Surat Lamaran', url: normalizeDriveLink(item.SuratLamaran) },
@@ -611,7 +685,7 @@
           { label: 'Dokumen Gabungan', url: normalizeDriveLink(item.Gabungan) }
         ];
         const docsContainer = document.getElementById('cekDocs');
-        docsContainer.innerHTML = docs.map(doc => `<a class="document-link" href="${doc.url}" target="_blank">${doc.label}</a>`).join('');
+        docsContainer.innerHTML = docs.map(doc => doc.url ? `<a class="document-link" href="${escapeHtml(doc.url)}" target="_blank">${escapeHtml(doc.label)}</a>` : '').join('');
         const fields = [
           ['Email', item.Email], ['NIK', item.NIK], ['Nama', item.Nama], ['TTL', item.TTL], ['Jenis Kelamin', item.JenisKelamin],
           ['HP', item.HP], ['Alamat KTP', item.AlamatKTP], ['Domisili', item.Domisili], ['Pendidikan', item.Pendidikan], ['IPK', item.IPK],
@@ -619,7 +693,7 @@
           ['Kompetensi', item.Kompetensi], ['Catatan Kompetensi', item.CatatanKompetensi], ['Wawancara', item.Wawancara], ['Catatan Wawancara', item.CatatanWawancara],
           ['Kesehatan', item.Kesehatan], ['Catatan Kesehatan', item.CatatanKesehatan], ['Hasil Akhir', item.HasilAkhir]
         ];
-        document.getElementById('cekDataTable').innerHTML = fields.map(([label, value]) => `<tr><td style="width:240px;"><strong>${label}</strong></td><td>${value || '-'}</td></tr>`).join('');
+        document.getElementById('cekDataTable').innerHTML = fields.map(([label, value]) => `<tr><td style="width:240px;"><strong>${escapeHtml(label)}</strong></td><td>${escapeHtml(value) || '-'}</td></tr>`).join('');
       });
     }
 
@@ -640,17 +714,25 @@
         return !search || text.includes(search);
       }).forEach(item => {
         const row = document.createElement('tr');
+        const safeNik = escapeHtml(item.NIK);
+        const safeNama = escapeHtml(item.Nama);
+        const safeFormasi = escapeHtml(item.Formasi);
+        
         row.innerHTML = `
-          <td>${item.NIK}</td>
-          <td>${item.Nama}</td>
-          <td>${item.Formasi}</td>
-          <td><select onchange="saveSeleksiStatus('${item.NIK}', 'Berkas', this.value)">${selectionOptions(item.Berkas)}</select></td>
-          <td><select onchange="saveSeleksiStatus('${item.NIK}', 'Kompetensi', this.value)">${selectionOptions(item.Kompetensi)}</select></td>
-          <td><select onchange="saveSeleksiStatus('${item.NIK}', 'Wawancara', this.value)">${selectionOptions(item.Wawancara)}</select></td>
-          <td><select onchange="saveSeleksiStatus('${item.NIK}', 'Kesehatan', this.value)">${selectionOptions(item.Kesehatan)}</select></td>
-          <td><select onchange="saveSeleksiStatus('${item.NIK}', 'HasilAkhir', this.value)">${selectionOptions(item.HasilAkhir)}</select></td>
-          <td><button class="button secondary" onclick='showAdminDetail(${JSON.stringify(item)})'>Detail</button></td>
+          <td>${safeNik}</td>
+          <td>${safeNama}</td>
+          <td>${safeFormasi}</td>
+          <td><select onchange="saveSeleksiStatus('${safeNik}', 'Berkas', this.value)">${selectionOptions(item.Berkas)}</select></td>
+          <td><select onchange="saveSeleksiStatus('${safeNik}', 'Kompetensi', this.value)">${selectionOptions(item.Kompetensi)}</select></td>
+          <td><select onchange="saveSeleksiStatus('${safeNik}', 'Wawancara', this.value)">${selectionOptions(item.Wawancara)}</select></td>
+          <td><select onchange="saveSeleksiStatus('${safeNik}', 'Kesehatan', this.value)">${selectionOptions(item.Kesehatan)}</select></td>
+          <td><select onchange="saveSeleksiStatus('${safeNik}', 'HasilAkhir', this.value)">${selectionOptions(item.HasilAkhir)}</select></td>
+          <td><button class="button secondary" id="btnDetail-${safeNik}">Detail</button></td>
         `;
+        const detailBtn = row.querySelector(`#btnDetail-${safeNik}`);
+        if (detailBtn) {
+          detailBtn.onclick = () => showAdminDetail(item);
+        }
         body.appendChild(row);
       });
     }
@@ -675,15 +757,18 @@
         ['Berkas', item.Berkas], ['Catatan Berkas', item.CatatanBerkas], ['Kompetensi', item.Kompetensi], ['Catatan Kompetensi', item.CatatanKompetensi],
         ['Wawancara', item.Wawancara], ['Catatan Wawancara', item.CatatanWawancara], ['Kesehatan', item.Kesehatan], ['Catatan Kesehatan', item.CatatanKesehatan], ['Hasil Akhir', item.HasilAkhir]
       ];
-      const rows = detailRows.map(([label, value]) => `<tr><td style="width:180px;"><strong>${label}</strong></td><td>${value || '-'}</td></tr>`).join('');
+      const rows = detailRows.map(([label, value]) => `<tr><td style="width:180px;"><strong>${escapeHtml(label)}</strong></td><td>${escapeHtml(value) || '-'}</td></tr>`).join('');
       const docLinks = [
         ['Foto', normalizeDriveLink(item.Foto)],
         ['Surat Pernyataan', normalizeDriveLink(item.SuratPernyataan)],
         ['Surat Lamaran', normalizeDriveLink(item.SuratLamaran)],
         ['CV', normalizeDriveLink(item.CV)],
         ['Dokumen Gabungan', normalizeDriveLink(item.Gabungan)]
-      ].map(([label,url]) => `<a class="document-link" href="${url}" target="_blank">${label}</a>`).join(' ');
-      alert(`Detail Pelamar:\n\n${detailRows.map(([label,value]) => `${label}: ${value || '-'}`).join('\n')}\n\nDokumen:\n${docLinks.replace(/<[^>]+>/g,' ')} `);
+      ].map(([label,url]) => url ? `<a class="document-link" href="${escapeHtml(url)}" target="_blank">${escapeHtml(label)}</a>` : '').join(' ');
+      
+      const textContent = detailRows.map(([label, value]) => `${label}: ${value || '-'}`).join('\n');
+      const docText = docLinks.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      alert(`Detail Pelamar:\n\n${textContent}\n\nDokumen:\n${docText}`);
     }
 
     function openLightbox(src) {
