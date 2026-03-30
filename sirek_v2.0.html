@@ -362,7 +362,13 @@
 
   <script>
     const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbzRZCir-Sxy5v6PD6FuRbN0lJf2d66LyIAmNmd6PnQv7gV0q3FYTaKkhGiqVKYzC6Di/exec';
-    const API_ROOT = location.host.includes('script.google.com') ? `${location.origin}${location.pathname}` : DEFAULT_API_ROOT;
+    let API_ROOT = DEFAULT_API_ROOT;
+    if (location.host.includes('script.google.com')) {
+      API_ROOT = `${location.origin}${location.pathname}`;
+    }
+    if (API_ROOT && API_ROOT.endsWith('.html')) {
+      API_ROOT = DEFAULT_API_ROOT;
+    }
     console.log('SIREK API_ROOT:', API_ROOT);
     let formasiData = [];
     let pelamarData = [];
