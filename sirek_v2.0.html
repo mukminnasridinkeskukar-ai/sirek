@@ -391,8 +391,13 @@
       try { await callback(); } finally { document.getElementById('loadingOverlay').classList.remove('show'); }
     }
 
-    async function apiGet(path) {
-      const response = await fetch(`${API_ROOT}?action=${path}`);
+    async function apiGet(path, params = {}) {
+      const url = new URL(API_ROOT);
+      url.searchParams.set('action', path);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) url.searchParams.set(key, value);
+      });
+      const response = await fetch(url.toString());
       if (!response.ok) {
         const text = await response.text();
         throw new Error(`API GET ${path} gagal: ${response.status} ${response.statusText} - ${text.slice(0, 200)}`);
@@ -401,8 +406,10 @@
     }
 
     async function apiPost(path, payload) {
-      const response = await fetch(`${API_ROOT}?action=${path}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      const url = new URL(API_ROOT);
+      url.searchParams.set('action', path);
+      const response = await fetch(url.toString(), {
+        method: 'POST', body: JSON.stringify(payload)
       });
       if (!response.ok) {
         const text = await response.text();
@@ -552,7 +559,7 @@
       const nik = document.getElementById('cekNikInput').value.trim();
       if (!nik) return alert('Masukkan NIK untuk mencari.');
       await withLoading(async () => {
-        const result = await apiGet(`cekLamaran?nik=${encodeURIComponent(nik)}`);
+        const result = await apiGet('cekLamaran', { nik });
         const item = result.data || null;
         if (!item) {
           alert('Data pelamar tidak ditemukan.');
