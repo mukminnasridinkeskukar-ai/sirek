@@ -175,6 +175,7 @@
           <li class="nav-item"><button id="menuLamaran" onclick="selectMenu('lamaran')"><span class="nav-icon">✉️</span><span class="nav-caption">Formulir Lamaran</span></button></li>
           <li class="nav-item"><button id="menuCek" onclick="selectMenu('cek')"><span class="nav-icon">🔎</span><span class="nav-caption">Cek Data Lamaran</span></button></li>
           <li class="nav-item"><button id="menuAdmin" onclick="selectMenu('admin')"><span class="nav-icon">👤</span><span class="nav-caption">Panel Admin</span></button></li>
+          <li class="nav-item"><button onclick="debugConnection()"><span class="nav-icon">🔧</span><span class="nav-caption">Debug API</span></button></li>
         </ul>
       </nav>
     </aside>
@@ -373,7 +374,7 @@
   </div>
 
   <script>
-    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbzX7tLHbZ7zLiqvEPqSJHkdQAsbgrS49WMmyYvnmDkARoMI6wNFPWE_WmDl8i6mlp6i/exec';
+    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbwyjrXUZjsQ57jwr_YzsaTS9Xqx407Liu1RgQWzH34VoyGjq_nk2p5E1aGUBngV5nrT/exec';
     let API_ROOT = DEFAULT_API_ROOT;
     if (location.host.includes('script.google.com')) {
       const currentPath = location.pathname.toLowerCase();
@@ -406,6 +407,29 @@
     }
 
     function capitalize(value) { return value.charAt(0).toUpperCase() + value.slice(1); }
+
+    // Debug function to test API connection
+    async function debugConnection() {
+      const url = new URL(API_ROOT);
+      url.searchParams.set('action', 'debug');
+      console.log('Testing URL:', url.toString());
+      try {
+        const response = await fetch(url.toString());
+        console.log('Response status:', response.status);
+        const text = await response.text();
+        console.log('Response text:', text.slice(0, 500));
+        if (response.ok) {
+          const json = JSON.parse(text);
+          console.log('Debug info:', json);
+          alert('Debug Info:\n' + JSON.stringify(json.debug || json, null, 2));
+        } else {
+          alert('Error: ' + text.slice(0, 200));
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Connection failed: ' + err.message);
+      }
+    }
 
     async function withLoading(callback) {
       document.getElementById('loadingOverlay').classList.add('show');
