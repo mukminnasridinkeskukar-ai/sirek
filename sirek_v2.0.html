@@ -255,11 +255,11 @@
               <div class="field-group"><label>Pendidikan Terakhir</label><input id="lamaPendidikan" type="text" required placeholder="Contoh: S1 Akuntansi" /></div>
               <div class="field-group"><label>IPK</label><input id="lamaIPK" type="text" required placeholder="Contoh: 3.45" /></div>
               <div class="field-group"><label>Formasi Dilamar</label><select id="lamaFormasi" required><option value="">Muat formasi...</option></select></div>
-              <div class="field-group"><label>Link Foto (Drive)</label><input id="lamaFoto" type="url" required placeholder="Link Google Drive foto" /></div>
-              <div class="field-group"><label>Link Surat Pernyataan</label><input id="lamaSuratPernyataan" type="url" required placeholder="Link Google Drive surat pernyataan" /></div>
-              <div class="field-group"><label>Link Surat Lamaran</label><input id="lamaSuratLamaran" type="url" required placeholder="Link Google Drive surat lamaran" /></div>
-              <div class="field-group"><label>Link CV</label><input id="lamaCV" type="url" required placeholder="Link Google Drive CV" /></div>
-              <div class="field-group"><label>Link Dokumen Gabungan</label><input id="lamaGabungan" type="url" required placeholder="Link Google Drive dokumen gabungan" /></div>
+              <div class="field-group"><label>Upload Foto (Drive)</label><input id="lamaFoto" type="url" required placeholder="Link Google Drive foto" /></div>
+              <div class="field-group"><label>Upload Surat Pernyataan (Drive)</label><input id="lamaSuratPernyataan" type="url" required placeholder="Link Google Drive surat pernyataan" /></div>
+              <div class="field-group"><label>Upload Surat Lamaran (Drive)</label><input id="lamaSuratLamaran" type="url" required placeholder="Link Google Drive surat lamaran" /></div>
+              <div class="field-group"><label>Upload CV (Drive)</label><input id="lamaCV" type="url" required placeholder="Link Google Drive CV" /></div>
+              <div class="field-group"><label>Upload Dokumen Gabungan (Drive)</label><input id="lamaGabungan" type="url" required placeholder="Link Google Drive dokumen gabungan" /></div>
             </div>
             <div class="search-box" style="margin-top: 20px; gap: 12px;">
               <button type="submit" class="button primary">Submit Lamaran</button>
@@ -361,7 +361,8 @@
   </div>
 
   <script>
-    const API_ROOT = location.protocol.startsWith('http') ? `${location.origin}${location.pathname}` : 'https://script.google.com/macros/s/AKfycbzRZCir-Sxy5v6PD6FuRbN0lJf2d66LyIAmNmd6PnQv7gV0q3FYTaKkhGiqVKYzC6Di/exec';
+    const DEFAULT_API_ROOT = 'https://script.google.com/macros/s/AKfycbzRZCir-Sxy5v6PD6FuRbN0lJf2d66LyIAmNmd6PnQv7gV0q3FYTaKkhGiqVKYzC6Di/exec';
+    const API_ROOT = location.host.includes('script.google.com') ? `${location.origin}${location.pathname}` : DEFAULT_API_ROOT;
     let formasiData = [];
     let pelamarData = [];
     let editingFormasiCode = null;
@@ -391,6 +392,10 @@
 
     async function apiGet(path) {
       const response = await fetch(`${API_ROOT}/${path}`);
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`API GET ${path} gagal: ${response.status} ${response.statusText} - ${text.slice(0, 200)}`);
+      }
       return await response.json();
     }
 
@@ -398,6 +403,10 @@
       const response = await fetch(`${API_ROOT}/${path}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`API POST ${path} gagal: ${response.status} ${response.statusText} - ${text.slice(0, 200)}`);
+      }
       return await response.json();
     }
 
